@@ -1,0 +1,26 @@
+# reusable-steps.yml
+
+# Define a reusable step for setting environment variables
+steps:
+    - name: Set environment variables
+    id: container-env-vars
+      run: |
+        echo "BUILD_DTE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+        
+        if [[ "${{ github.event_name }}" == 'pull_request' ]]; then
+          echo "CLEAN_REF_NAME=$(echo '${{ github.ref_name }}' | sed 's/feature\///')" >> $GITHUB_ENV
+        elif [[ "${{ github.ref }}" == 'refs/tags/'* ]]; then
+          echo "CLEAN_REF_NAME=$(echo 'prod')" >> $GITHUB_ENV
+        else
+          echo "CLEAN_REF_NAME=$(echo 'stg')" >> $GITHUB_ENV
+        fi
+
+    - name: Display output variables
+        run: |
+          echo "Build Date: ${{ env.BUILD_DTE }}"
+          echo "Clean Ref Name: ${{ env.CLEAN_REF_NAME }}"
+
+  # Define output variables
+  outputs:
+    build_date: ${{ env.BUILD_DTE }}
+    clean_ref_name: ${{ env.CLEAN_REF_NAME }}
